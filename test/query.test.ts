@@ -1,7 +1,7 @@
 import * as Url from '@yorkjs/url'
-import * as queryUtil from '../src/query'
 import * as Auth from '../src/auth'
 import * as Init from '../src/init'
+import * as queryUtil from '../src/query'
 import { Config, Query } from '../src/type'
 
 const store = {}
@@ -119,7 +119,7 @@ describe('test query getAuthQuery', () => {
       let expected: Query = {}
 
       // 先发起请求
-      Auth.requestAuth('wechat_try_bind', url, 'wx41a3f2fe6754da49')
+      Auth.startAuth('wechat_try_bind', url, 'wx41a3f2fe6754da49')
 
       // 第一次读取，从 href 读出回调的地址
       url = window.location.href
@@ -154,7 +154,7 @@ describe('test query getAuthQuery', () => {
       let expected: Query = {}
 
       // 先发起请求
-      Auth.requestAuth('wechat_try_bind', url, 'wx41a3f2fe6754da49')
+      Auth.startAuth('wechat_try_bind', url, 'wx41a3f2fe6754da49')
 
       url = window.location.href
 
@@ -173,7 +173,7 @@ describe('test query getAuthQuery', () => {
       let expected: Query = {}
 
       // 先发起请求
-      Auth.requestAuth('wechat_try_bind', url, 'wx41a3f2fe6754da49')
+      Auth.startAuth('wechat_try_bind', url, 'wx41a3f2fe6754da49')
 
       // 第一次读取
       url = window.location.href
@@ -196,7 +196,7 @@ describe('test query getAuthQuery', () => {
       let expected: Query = {}
 
       // 先发起请求
-      Auth.requestAuth('wechat_try_pay', url, 'wx41a3f2fe6754da49')
+      Auth.startAuth('wechat_try_pay', url, 'wx41a3f2fe6754da49')
 
       // 第一次读取
       url = window.location.href
@@ -210,6 +210,42 @@ describe('test query getAuthQuery', () => {
 
       // 第二次读取
       result = queryUtil.getAuthQuery(url, { once: true, expireSeconds: 10 })
+      expected = {}
+
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('startAuth and endAuth', () => {
+    test('endAuth', () => {
+      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay@138928828`
+      let expected: Query = {}
+
+      // 先发起请求
+      Auth.startAuth('wechat_try_bind', url, 'wx41a3f2fe6754da49')
+
+      // 第一次读取，从 href 读出回调的地址
+      url = window.location.href
+      let result = queryUtil.getAuthQuery(url, { expireSeconds: 10 })
+      expected = {
+        state: 'wechat_try_bind',
+      }
+
+      expect(result).toMatchObject(expected)
+
+      // 第二次读取
+      result = queryUtil.getAuthQuery(url, { expireSeconds: 10 })
+      expected = {
+        state: 'wechat_try_bind',
+      }
+
+      expect(result).toMatchObject(expected)
+
+      // 授权结束
+      Auth.endAuth('wechat_try_bind')
+
+      // 第三次，超时读取
+      result = queryUtil.getAuthQuery(url, { expireSeconds: 10 })
       expected = {}
 
       expect(result).toEqual(expected)

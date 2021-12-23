@@ -18,3 +18,7 @@ export function getStorage(key: string): any {
 export function setStorage(key: string, value: any) {
   globalConfig.storage.set(`${STORAGE_PREFIX}_${key}`, value)
 }
+
+export function removeStorage(key: string) {
+  globalConfig.storage.remove(`${STORAGE_PREFIX}_${key}`)
+}

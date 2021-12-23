@@ -4,12 +4,13 @@ import * as Query from './query';
 import * as Share from './share';
 import * as Pay from './pay';
 export declare const init: typeof Init.init;
-export declare const requestAuth: typeof Auth.requestAuth;
-export declare const requestSilentAuth: typeof Auth.requestSilentAuth;
+export declare const startAuth: typeof Auth.startAuth;
+export declare const startSilentAuth: typeof Auth.startSilentAuth;
+export declare const endAuth: typeof Auth.endAuth;
 export declare const getAuthQuery: typeof Query.getAuthQuery;
 export declare const share: typeof Share.share;
 export declare const pay: typeof Pay.pay;
 /**
  * 版本
  */
-export declare const version = "0.0.1";
+export declare const version = "1.0.0";

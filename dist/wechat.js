@@ -1,5 +1,5 @@
 /**
- * wechat.js v0.0.1
+ * wechat.js v1.0.0
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -26,6 +26,9 @@
   function setStorage(key, value) {
       globalConfig.storage.set((STORAGE_PREFIX + "_" + key), value);
   }
+  function removeStorage(key) {
+      globalConfig.storage.remove((STORAGE_PREFIX + "_" + key));
+  }
 
   // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
   // 应用授权作用域
@@ -41,8 +44,11 @@
       }
       location.href = "https://open.weixin.qq.com/connect/oauth2/authorize?" + queryStr + "#wechat_redirect";
   }
+  function endAuth$1(biz) {
+      removeStorage(biz);
+  }
   // 弹出授权页面
-  function requestAuth$1(biz, url, appId, componentAppId) {
+  function startAuth$1(biz, url, appId, componentAppId) {
       var timestamp = getGlobalConfig().getTimestamp();
       var state = encodeURIComponent(("" + biz + STATE_SEPARATOR + timestamp));
       var scope = 'snsapi_userinfo';
@@ -53,7 +59,7 @@
       auth(state, url, scope, appId, componentAppId);
   }
   // 静默授权，不弹出授权页面
-  function requestSilentAuth$1(biz, url, appId, componentAppId) {
+  function startSilentAuth$1(biz, url, appId, componentAppId) {
       var timestamp = getGlobalConfig().getTimestamp();
       var state = encodeURIComponent(("" + biz + STATE_SEPARATOR + timestamp));
       var scope = 'snsapi_base';
@@ -84,11 +90,11 @@
       var state = stateStorageValue.state;
       var timestamp = stateStorageValue.timestamp;
       if (state && timestamp) {
-          // 1.1 时间是否过期
+          // 1 时间是否过期
           if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
               return false;
           }
-          // 1.2 是否读取过了
+          // 2 是否读取过了
           if (once && stateMap[state]) {
               return false;
           }
@@ -119,11 +125,11 @@
       var state = query.state;
       var timestamp = query.timestamp;
       if (state && timestamp) {
-          // 1.1 时间是否过期
+          // 1 时间是否过期
           if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
               return false;
           }
-          // 1.2 是否读取过了
+          // 2 是否读取过了
           if (once && stateMap[state]) {
               return false;
           }
@@ -161,19 +167,19 @@
               return query;
           }
           var once = checkRule.once;
-          // 1. 校验 query 自身参数
+          // 2. 校验 query 自身参数
           if (!checkQueryState(query, checkRule)) {
               return {};
           }
-          // 2. 校验 storage 里的参数是否合法
+          // 3. 校验 storage 里的参数是否合法
           if (!checkStorageState(state, checkRule)) {
               return {};
           }
-          // 3. 校验 query 和 storage 里存储的是否一致
+          // 4. 校验 query 和 storage 里存储的是否一致
           if (!isEqualQueryAndStorage(query)) {
               return {};
           }
-          // 4. 在当前页面生命周期生效,只读一次，记录 stateMap
+          // 5. 在当前页面生命周期生效,只读一次，记录 stateMap
           if (once) {
               stateMap[state] = true;
           }
@@ -270,22 +276,24 @@
   }
 
   var init = init$1;
-  var requestAuth = requestAuth$1;
-  var requestSilentAuth = requestSilentAuth$1;
+  var startAuth = startAuth$1;
+  var startSilentAuth = startSilentAuth$1;
+  var endAuth = endAuth$1;
   var getAuthQuery = getAuthQuery$1;
   var share = share$1;
   var pay = pay$1;
   /**
    * 版本
    */
-  var version = "0.0.1";
+  var version = "1.0.0";
 
+  exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;
   exports.init = init;
   exports.pay = pay;
-  exports.requestAuth = requestAuth;
-  exports.requestSilentAuth = requestSilentAuth;
   exports.share = share;
+  exports.startAuth = startAuth;
+  exports.startSilentAuth = startSilentAuth;
   exports.version = version;
 
   Object.defineProperty(exports, '__esModule', { value: true });

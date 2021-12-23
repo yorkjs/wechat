@@ -1,5 +1,6 @@
 import {
   setStorage,
+  removeStorage,
   getGlobalConfig,
 } from './init'
 import { STATE_SEPARATOR } from './constant'
@@ -22,8 +23,12 @@ function auth(state: string, url: string, scope: string, appId: string, componen
   location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?${queryStr}#wechat_redirect`
 }
 
+export function endAuth(biz: string) {
+  removeStorage(biz)
+}
+
 // 弹出授权页面
-export function requestAuth(biz: string, url: string, appId: string, componentAppId?: string) {
+export function startAuth(biz: string, url: string, appId: string, componentAppId?: string) {
   const timestamp = getGlobalConfig().getTimestamp()
   const state = encodeURIComponent(`${biz}${STATE_SEPARATOR}${timestamp}`)
   const scope = 'snsapi_userinfo'
@@ -40,7 +45,7 @@ export function requestAuth(biz: string, url: string, appId: string, componentAp
 }
 
 // 静默授权，不弹出授权页面
-export function requestSilentAuth(biz: string, url: string, appId: string, componentAppId?: string) {
+export function startSilentAuth(biz: string, url: string, appId: string, componentAppId?: string) {
   const timestamp = getGlobalConfig().getTimestamp()
   const state = encodeURIComponent(`${biz}${STATE_SEPARATOR}${timestamp}`)
   const scope = 'snsapi_base'

@@ -12,10 +12,10 @@ CDN
   wechat.init({
     storage: Storage,
     getTimestamp: () => number,
-    jssdkSignture: (appId, url) => Promise<any>,
+    getSignture: (appId, url) => Promise<any>,
   })
   // componentAppId 可选（第三方授权账号使用）
-  wechat.requestAuth(state, url, appId, componentAppId)
+  wechat.startAuth(state, url, appId, componentAppId)
 </script>
 ```
 
@@ -35,6 +35,11 @@ yarn add @yorkjs/wechat
 import wechat from '@yorkjs/wechat'
 
 // 初始化
+// type Storage = {
+//   get: (key: string) => any,
+//   set: (key: string, value: any) => void,
+//   remove: (key: string) => void,
+// }
 wechat.init({
   storage: Storage,
   getTimestamp: () => number,
@@ -42,7 +47,7 @@ wechat.init({
 })
 
 // 发起微信授权 componentAppId 可选（第三方授权账号使用）
-wechat.requestAuth(state, url, appId, componentAppId)
+wechat.startAuth(state, url, appId, componentAppId)
 
 // 解析授权返回的 state 和 code
 // checkRule 校验规则，可选
@@ -51,6 +56,9 @@ wechat.requestAuth(state, url, appId, componentAppId)
 //   once: true, // 是否只读一次
 // }
 wechat.getAuthQuery(url, checkRule)
+
+// 成功后，结束授权，清理内部相关信息
+wechat.endAuth(state)
 ```
 
 ## 参考微信授权文档

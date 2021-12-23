@@ -17,7 +17,8 @@ function checkStorageState(storeState: string, checkRule: QueryCheckRule): boole
   if (stateStorageValue && typeof stateStorageValue === 'string') {
     try {
       stateStorageValue = JSON.parse(stateStorageValue)
-    } catch (error) {
+    }
+    catch (error) {
       stateStorageValue = {}
     }
   }
@@ -25,12 +26,12 @@ function checkStorageState(storeState: string, checkRule: QueryCheckRule): boole
   const { expireSeconds, once } = checkRule
   const { state, timestamp } = stateStorageValue
   if (state && timestamp) {
-    // 1.1 时间是否过期
+    // 1 时间是否过期
     if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
       return false
     }
 
-    // 1.2 是否读取过了
+    // 2 是否读取过了
     if (once && stateMap[state]) {
       return false
     }
@@ -50,7 +51,8 @@ function isEqualQueryAndStorage(query: Query) {
     if (stateStorageValue && typeof stateStorageValue === 'string') {
       try {
         stateStorageValue = JSON.parse(stateStorageValue)
-      } catch (error) {
+      }
+      catch (error) {
         stateStorageValue = {}
       }
     }
@@ -67,12 +69,12 @@ function checkQueryState(query: Query, checkRule: QueryCheckRule): boolean {
   const { state, timestamp } = query
   if (state && timestamp) {
 
-    // 1.1 时间是否过期
+    // 1 时间是否过期
     if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
       return false
     }
 
-    // 1.2 是否读取过了
+    // 2 是否读取过了
     if (once && stateMap[state]) {
       return false
     }
@@ -121,22 +123,22 @@ export function getAuthQuery(url: string, checkRule?: QueryCheckRule): Query {
 
     const { once } = checkRule
 
-    // 1. 校验 query 自身参数
+    // 2. 校验 query 自身参数
     if (!checkQueryState(query, checkRule)) {
       return {}
     }
 
-    // 2. 校验 storage 里的参数是否合法
+    // 3. 校验 storage 里的参数是否合法
     if (!checkStorageState(state, checkRule)) {
       return {}
     }
 
-    // 3. 校验 query 和 storage 里存储的是否一致
+    // 4. 校验 query 和 storage 里存储的是否一致
     if (!isEqualQueryAndStorage(query)) {
       return {}
     }
 
-    // 4. 在当前页面生命周期生效,只读一次，记录 stateMap
+    // 5. 在当前页面生命周期生效,只读一次，记录 stateMap
     if (once) {
       stateMap[state] = true
     }

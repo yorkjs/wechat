@@ -5,8 +5,9 @@ import * as Share from './share'
 import * as Pay from './pay'
 
 export const init = Init.init
-export const requestAuth = Auth.requestAuth
-export const requestSilentAuth = Auth.requestSilentAuth
+export const startAuth = Auth.startAuth
+export const startSilentAuth = Auth.startSilentAuth
+export const endAuth = Auth.endAuth
 export const getAuthQuery = Query.getAuthQuery
 export const share =  Share.share
 export const pay = Pay.pay
