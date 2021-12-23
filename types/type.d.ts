@@ -12,14 +12,9 @@ export declare type QueryCheckRule = {
     expireSeconds?: number;
     once?: boolean;
 };
-export declare type SignParams = {
-    appId: string;
-    appType: number;
-    url: string;
-};
 export interface Config {
     storage: Storage;
     getTimestamp: () => number;
-    jssdkSignture: (params: SignParams) => Promise<any>;
+    getSignture: (appId: string, url: string) => Promise<any>;
 }
 export {};
