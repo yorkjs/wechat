@@ -15,15 +15,9 @@ export type QueryCheckRule = {
   once?: boolean,
 }
 
-export type SignParams = {
-  appId: string,
-  appType: number,
-  url: string,
-}
-
 export interface Config {
   storage: Storage,
   getTimestamp: () => number,
-  jssdkSignture: (params: SignParams) => Promise<any>,
+  getSignture: (appId: string, url: string) => Promise<any>,
 }
 

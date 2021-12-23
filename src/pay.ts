@@ -1,7 +1,7 @@
 // https://zhuanlan.zhihu.com/p/364767359
 declare global {
   interface Window {
-    WeixinJSBridge: any;
+    WeixinJSBridge: any
   }
 }
 

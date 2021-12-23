@@ -12,7 +12,7 @@ CDN
   wechat.init({
     storage: Storage,
     getTimestamp: () => number,
-    jssdkSignture: (params: SignParams) => Promise<any>,
+    jssdkSignture: (appId, url) => Promise<any>,
   })
   // componentAppId 可选（第三方授权账号使用）
   wechat.requestAuth(state, url, appId, componentAppId)
@@ -38,7 +38,7 @@ import wechat from '@yorkjs/wechat'
 wechat.init({
   storage: Storage,
   getTimestamp: () => number,
-  jssdkSignture: (params: SignParams) => Promise<any>,
+  getSignture: (appId: string, url: string) => Promise<any>,
 })
 
 // 发起微信授权 componentAppId 可选（第三方授权账号使用）

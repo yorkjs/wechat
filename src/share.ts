@@ -1,47 +1,12 @@
-// import wx from 'weixin-js-sdk'
 import { getGlobalConfig } from './init'
-const wx = require('weixin-js-sdk')
 
-// https://zhuanlan.zhihu.com/p/364767359
-declare global {
-  interface Window {
-    sendMessage: any;
-  }
-}
+export function share(wx: any, shareInfo: any, appId: string, url: string) {
 
-export function share(shareInfo: any, appId: string, appType: number, isWechat: boolean = false) {
+  getGlobalConfig()
+    .getSignture(appId, url)
+    .then(function (data) {
 
-  // app 分享
-  if (window.sendMessage) {
-    window.sendMessage({
-      command: 'pageInfo',
-      href: shareInfo.url,
-      title: shareInfo.title,
-      desc: shareInfo.content,
-      thumbnail: shareInfo.image,
-    })
-  }
-
-  if (!isWechat) {
-    return
-  }
-
-  const { location } = window
-
-  let url = location.href
-  if (location.hash) {
-    url = url.replace(location.hash, '')
-  }
-
-  getGlobalConfig().jssdkSignture({
-    appId,
-    appType,
-    url,
-  })
-  .then(response => {
-    if(response.code === 0) {
-      let data = response.data
-      let jsApiList = [
+      const jsApiList = [
         'onMenuShareAppMessage',
         'onMenuShareTimeline',
         'updateAppMessageShareData',
@@ -58,11 +23,11 @@ export function share(shareInfo: any, appId: string, appType: number, isWechat: 
         jsApiList
       })
 
-      wx.ready(() => {
+      wx.ready(function () {
         wx.checkJsApi({
           jsApiList,
-          success: res => {
-            let result = res.checkResult
+          success (res) {
+            const result = res.checkResult
 
             if (result.updateAppMessageShareData) {
               wx.updateAppMessageShareData({
@@ -108,7 +73,6 @@ export function share(shareInfo: any, appId: string, appType: number, isWechat: 
           }
         })
       })
-    }
-  })
+    })
 
 }

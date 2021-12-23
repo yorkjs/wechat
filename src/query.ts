@@ -15,7 +15,11 @@ function checkStorageState(storeState: string, checkRule: QueryCheckRule): boole
 
   let stateStorageValue: any = getStorage(storeState) || {}
   if (stateStorageValue && typeof stateStorageValue === 'string') {
-    stateStorageValue = JSON.parse(stateStorageValue)
+    try {
+      stateStorageValue = JSON.parse(stateStorageValue)
+    } catch (error) {
+      stateStorageValue = {}
+    }
   }
 
   const { expireSeconds, once } = checkRule
@@ -44,7 +48,11 @@ function isEqualQueryAndStorage(query: Query) {
 
     let stateStorageValue: any = getStorage(state) || {}
     if (stateStorageValue && typeof stateStorageValue === 'string') {
-      stateStorageValue = JSON.parse(stateStorageValue)
+      try {
+        stateStorageValue = JSON.parse(stateStorageValue)
+      } catch (error) {
+        stateStorageValue = {}
+      }
     }
 
     return stateStorageValue.state === state && stateStorageValue.timestamp === timestamp
