@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ESNEXT",
+    "module": "ESNEXT",
+    "rootDir": "./src",
+    "outDir": "./js",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "declarationDir": "./types",
+    "declaration": true,
+    "declarationMap": false,
+
+    "strict": true,
+    "noImplicitAny": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": true,
+    "allowJs": true,
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
