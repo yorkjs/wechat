@@ -56,6 +56,12 @@ describe('share', () => {
     const appId = 'wx41a3f2fe6754da49'
     const url = 'https://test-www.finstao.com/enterprise/83377475330'
 
-    share(wxMock, shareInfo, appId, url)
+    return share(wxMock, shareInfo, appId, url)
+    .then(() => {
+      expect(true).toEqual(true)
+    })
+    .catch((err) => {
+      expect(err).toEqual(undefined)
+    })
   })
 })

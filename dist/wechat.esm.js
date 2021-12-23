@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.0.0
+ * wechat.js v1.0.1
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -175,71 +175,77 @@ function getAuthQuery$1(url, checkRule) {
 }
 
 function share$1(wx, shareInfo, appId, url) {
-    getGlobalConfig()
-        .getSignture(appId, url)
-        .then(function (data) {
-        const jsApiList = [
-            'onMenuShareAppMessage',
-            'onMenuShareTimeline',
-            'updateAppMessageShareData',
-            'updateTimelineShareData',
-            'onMenuShareWeibo',
-            'previewImage',
-        ];
-        wx.config({
-            debug: false,
-            appId: data.app_id,
-            timestamp: data.timestamp,
-            nonceStr: data.noncestr,
-            signature: data.signature,
-            jsApiList
-        });
-        wx.ready(function () {
-            wx.checkJsApi({
-                jsApiList,
-                success(res) {
-                    const result = res.checkResult;
-                    if (result.updateAppMessageShareData) {
-                        wx.updateAppMessageShareData({
-                            title: shareInfo.title,
-                            desc: shareInfo.content,
-                            link: shareInfo.url,
-                            imgUrl: shareInfo.image
-                        });
-                    }
-                    // 旧版,用来适配Android
-                    if (result.onMenuShareAppMessage) {
-                        wx.onMenuShareAppMessage({
-                            title: shareInfo.title,
-                            desc: shareInfo.content,
-                            link: shareInfo.url,
-                            imgUrl: shareInfo.image
-                        });
-                    }
-                    if (result.updateTimelineShareData) {
-                        wx.updateTimelineShareData({
-                            title: shareInfo.title,
-                            link: shareInfo.url,
-                            imgUrl: shareInfo.image,
-                        });
-                    }
-                    if (result.onMenuShareTimeline) {
-                        wx.onMenuShareTimeline({
-                            title: shareInfo.title,
-                            link: shareInfo.url,
-                            imgUrl: shareInfo.image,
-                        });
-                    }
-                    if (result.onMenuShareWeibo) {
-                        wx.onMenuShareWeibo({
-                            title: shareInfo.title,
-                            desc: shareInfo.content,
-                            link: shareInfo.url,
-                            imgUrl: shareInfo.image
-                        });
-                    }
-                }
+    return new Promise(function (resolve, reject) {
+        getGlobalConfig()
+            .getSignture(appId, url)
+            .then(function (data) {
+            const jsApiList = [
+                'onMenuShareAppMessage',
+                'onMenuShareTimeline',
+                'updateAppMessageShareData',
+                'updateTimelineShareData',
+                'onMenuShareWeibo',
+                'previewImage',
+            ];
+            wx.config({
+                debug: false,
+                appId: data.app_id,
+                timestamp: data.timestamp,
+                nonceStr: data.noncestr,
+                signature: data.signature,
+                jsApiList
             });
+            wx.ready(function () {
+                wx.checkJsApi({
+                    jsApiList,
+                    success(res) {
+                        const result = res.checkResult;
+                        if (result.updateAppMessageShareData) {
+                            wx.updateAppMessageShareData({
+                                title: shareInfo.title,
+                                desc: shareInfo.content,
+                                link: shareInfo.url,
+                                imgUrl: shareInfo.image
+                            });
+                        }
+                        // 旧版,用来适配Android
+                        if (result.onMenuShareAppMessage) {
+                            wx.onMenuShareAppMessage({
+                                title: shareInfo.title,
+                                desc: shareInfo.content,
+                                link: shareInfo.url,
+                                imgUrl: shareInfo.image
+                            });
+                        }
+                        if (result.updateTimelineShareData) {
+                            wx.updateTimelineShareData({
+                                title: shareInfo.title,
+                                link: shareInfo.url,
+                                imgUrl: shareInfo.image,
+                            });
+                        }
+                        if (result.onMenuShareTimeline) {
+                            wx.onMenuShareTimeline({
+                                title: shareInfo.title,
+                                link: shareInfo.url,
+                                imgUrl: shareInfo.image,
+                            });
+                        }
+                        if (result.onMenuShareWeibo) {
+                            wx.onMenuShareWeibo({
+                                title: shareInfo.title,
+                                desc: shareInfo.content,
+                                link: shareInfo.url,
+                                imgUrl: shareInfo.image
+                            });
+                        }
+                    }
+                });
+            });
+            resolve();
+        })
+            .catch(function () {
+            reject();
         });
     });
 }
@@ -273,7 +279,7 @@ const pay = pay$1;
 /**
  * 版本
  */
-const version = "1.0.0";
+const version = "1.0.1";
 
 export { endAuth, getAuthQuery, init, pay, share, startAuth, startSilentAuth, version };
 //# sourceMappingURL=wechat.esm.js.map

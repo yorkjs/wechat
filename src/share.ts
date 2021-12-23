@@ -1,8 +1,9 @@
 import { getGlobalConfig } from './init'
 
-export function share(wx: any, shareInfo: any, appId: string, url: string) {
+export function share(wx: any, shareInfo: any, appId: string, url: string): Promise<void> {
 
-  getGlobalConfig()
+  return new Promise(function(resolve, reject) {
+    getGlobalConfig()
     .getSignture(appId, url)
     .then(function (data) {
 
@@ -73,6 +74,12 @@ export function share(wx: any, shareInfo: any, appId: string, url: string) {
           }
         })
       })
+
+      resolve()
     })
+    .catch(function () {
+      reject()
+    })
+  })
 
 }
