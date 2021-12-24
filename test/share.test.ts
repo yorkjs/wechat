@@ -41,47 +41,19 @@ describe('share', () => {
       image: 'https://img.finstao.com/f6a5f9a07851fb7092de6aff15aeee25.jpeg',
     }
 
-    const getSignture = () => {
-      return new Promise<Signture>(function(resolve, reject) {
-        const data: Signture = {
-          app_id: 'wx41a3f2fe6754da49',
-          timestamp: 1639679669384,
-          noncestr: '031QKAFa1rPkiC0a8DH',
-          signature: '031QKAFa1rPkiC0a8DH',
-        }
-
-        resolve(data)
-      })
+    const signtrue: Signture = {
+      appId: 'wx41a3f2fe6754da49',
+      timestamp: 1639679669384,
+      nonceStr: '031QKAFa1rPkiC0a8DH',
+      signature: '031QKAFa1rPkiC0a8DH',
     }
 
-    return share(wxMock, shareInfo, getSignture)
+    return share(wxMock, signtrue, shareInfo)
     .then(() => {
       expect(true).toEqual(true)
     })
     .catch((err) => {
       expect(err).toEqual(undefined)
-    })
-  })
-  test('share faild', () => {
-    const shareInfo = {
-      url: 'https://test-www.finstao.com/enterprise/83377475330#/pages/main/index',
-      title: 'test',
-      content: 'test',
-      image: 'https://img.finstao.com/f6a5f9a07851fb7092de6aff15aeee25.jpeg',
-    }
-
-    const getSignture = () => {
-      return new Promise<Signture>(function(resolve, reject) {
-        reject('签名失败')
-      })
-    }
-
-    return share(wxMock, shareInfo, getSignture)
-    .then(() => {
-      expect(true).toEqual(true)
-    })
-    .catch((err) => {
-      expect(err).toEqual('签名失败')
     })
   })
 })

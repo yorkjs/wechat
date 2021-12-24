@@ -12,9 +12,9 @@ export type ShareInfo = {
 }
 
 export type Signture = {
-  app_id: string,
+  appId: string,
   timestamp: number,
-  noncestr: string,
+  nonceStr: string,
   signature: string,
 }
 

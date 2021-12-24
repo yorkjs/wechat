@@ -10,9 +10,9 @@ export declare type ShareInfo = {
     image: string;
 };
 export declare type Signture = {
-    app_id: string;
+    appId: string;
     timestamp: number;
-    noncestr: string;
+    nonceStr: string;
     signature: string;
 };
 export declare type Query = {

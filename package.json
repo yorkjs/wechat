@@ -1,6 +1,6 @@
 {
   "name": "@yorkjs/wechat",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "process wechat auth/pay/share tool",
   "main": "dist/wechat.js",
   "module": "dist/wechat.esm.js",

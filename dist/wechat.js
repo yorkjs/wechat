@@ -187,77 +187,73 @@
       return query;
   }
 
-  function share$1(wx, shareInfo, getSignture) {
+  function share$1(wx, signature, shareInfo, debug) {
+      if ( debug === void 0 ) debug = false;
+
       return new Promise(function (resolve, reject) {
-          getSignture()
-              .then(function (data) {
-              var jsApiList = [
-                  'onMenuShareAppMessage',
-                  'onMenuShareTimeline',
-                  'updateAppMessageShareData',
-                  'updateTimelineShareData',
-                  'onMenuShareWeibo',
-                  'previewImage' ];
-              wx.config({
-                  debug: false,
-                  appId: data.app_id,
-                  timestamp: data.timestamp,
-                  nonceStr: data.noncestr,
-                  signature: data.signature,
-                  jsApiList: jsApiList
-              });
-              wx.ready(function () {
-                  wx.checkJsApi({
-                      jsApiList: jsApiList,
-                      success: function(res) {
-                          var result = res.checkResult;
-                          if (result.updateAppMessageShareData) {
-                              wx.updateAppMessageShareData({
-                                  title: shareInfo.title,
-                                  desc: shareInfo.content,
-                                  link: shareInfo.url,
-                                  imgUrl: shareInfo.image
-                              });
-                          }
-                          // 旧版,用来适配Android
-                          if (result.onMenuShareAppMessage) {
-                              wx.onMenuShareAppMessage({
-                                  title: shareInfo.title,
-                                  desc: shareInfo.content,
-                                  link: shareInfo.url,
-                                  imgUrl: shareInfo.image
-                              });
-                          }
-                          if (result.updateTimelineShareData) {
-                              wx.updateTimelineShareData({
-                                  title: shareInfo.title,
-                                  link: shareInfo.url,
-                                  imgUrl: shareInfo.image,
-                              });
-                          }
-                          if (result.onMenuShareTimeline) {
-                              wx.onMenuShareTimeline({
-                                  title: shareInfo.title,
-                                  link: shareInfo.url,
-                                  imgUrl: shareInfo.image,
-                              });
-                          }
-                          if (result.onMenuShareWeibo) {
-                              wx.onMenuShareWeibo({
-                                  title: shareInfo.title,
-                                  desc: shareInfo.content,
-                                  link: shareInfo.url,
-                                  imgUrl: shareInfo.image
-                              });
-                          }
-                      }
-                  });
-              });
-              resolve();
-          })
-              .catch(function (err) {
-              reject(err);
+          var jsApiList = [
+              'onMenuShareAppMessage',
+              'onMenuShareTimeline',
+              'updateAppMessageShareData',
+              'updateTimelineShareData',
+              'onMenuShareWeibo',
+              'previewImage' ];
+          wx.config({
+              debug: debug,
+              appId: signature.appId,
+              timestamp: signature.timestamp,
+              nonceStr: signature.nonceStr,
+              signature: signature.signature,
+              jsApiList: jsApiList
           });
+          wx.ready(function () {
+              wx.checkJsApi({
+                  jsApiList: jsApiList,
+                  success: function(res) {
+                      var result = res.checkResult;
+                      if (result.updateAppMessageShareData) {
+                          wx.updateAppMessageShareData({
+                              title: shareInfo.title,
+                              desc: shareInfo.content,
+                              link: shareInfo.url,
+                              imgUrl: shareInfo.image
+                          });
+                      }
+                      // 旧版,用来适配Android
+                      if (result.onMenuShareAppMessage) {
+                          wx.onMenuShareAppMessage({
+                              title: shareInfo.title,
+                              desc: shareInfo.content,
+                              link: shareInfo.url,
+                              imgUrl: shareInfo.image
+                          });
+                      }
+                      if (result.updateTimelineShareData) {
+                          wx.updateTimelineShareData({
+                              title: shareInfo.title,
+                              link: shareInfo.url,
+                              imgUrl: shareInfo.image,
+                          });
+                      }
+                      if (result.onMenuShareTimeline) {
+                          wx.onMenuShareTimeline({
+                              title: shareInfo.title,
+                              link: shareInfo.url,
+                              imgUrl: shareInfo.image,
+                          });
+                      }
+                      if (result.onMenuShareWeibo) {
+                          wx.onMenuShareWeibo({
+                              title: shareInfo.title,
+                              desc: shareInfo.content,
+                              link: shareInfo.url,
+                              imgUrl: shareInfo.image
+                          });
+                      }
+                  }
+              });
+          });
+          resolve();
       });
   }
 
