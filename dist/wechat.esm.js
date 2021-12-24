@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.1.0
+ * wechat.js v1.1.1
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -278,7 +278,7 @@ const pay = pay$1;
 /**
  * 版本
  */
-const version = "1.1.0";
+const version = "1.1.1";
 
 export { endAuth, getAuthQuery, init, pay, share, startAuth, startSilentAuth, version };
 //# sourceMappingURL=wechat.esm.js.map

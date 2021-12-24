@@ -4,6 +4,20 @@ type Storage = {
   remove: (key: string) => void,
 }
 
+export type ShareInfo = {
+  title: string,
+  content: string,
+  url: string,
+  image: string,
+}
+
+export type Signture = {
+  app_id: string,
+  timestamp: number,
+  noncestr: string,
+  signature: string,
+}
+
 export type Query = {
   code?: string,
   state?: string,

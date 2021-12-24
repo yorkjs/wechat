@@ -1,8 +1,10 @@
-export function share(wx: any, shareInfo: any, getSignture: () => Promise<any>): Promise<void> {
+import { ShareInfo, Signture } from './type'
+
+export function share(wx: any, shareInfo: ShareInfo, getSignture: () => Promise<Signture>): Promise<void> {
 
   return new Promise(function(resolve, reject) {
     getSignture()
-    .then(function (data) {
+    .then(function (data: Signture) {
 
       const jsApiList = [
         'onMenuShareAppMessage',

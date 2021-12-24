@@ -1,5 +1,5 @@
 import * as Init from '../src/init'
-import { Config } from '../src/type'
+import { Config, Signture } from '../src/type'
 import { share } from '../src/share'
 
 const wxMock = {
@@ -42,11 +42,11 @@ describe('share', () => {
     }
 
     const getSignture = () => {
-      return new Promise(function(resolve, reject) {
-        const data: any = {
-          appId: 'wx41a3f2fe6754da49',
+      return new Promise<Signture>(function(resolve, reject) {
+        const data: Signture = {
+          app_id: 'wx41a3f2fe6754da49',
           timestamp: 1639679669384,
-          nonceStr: '031QKAFa1rPkiC0a8DH',
+          noncestr: '031QKAFa1rPkiC0a8DH',
           signature: '031QKAFa1rPkiC0a8DH',
         }
 
@@ -71,7 +71,7 @@ describe('share', () => {
     }
 
     const getSignture = () => {
-      return new Promise(function(resolve, reject) {
+      return new Promise<Signture>(function(resolve, reject) {
         reject('签名失败')
       })
     }

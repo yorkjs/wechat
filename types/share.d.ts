@@ -1,1 +1,2 @@
-export declare function share(wx: any, shareInfo: any, getSignture: () => Promise<any>): Promise<void>;
+import { ShareInfo, Signture } from './type';
+export declare function share(wx: any, shareInfo: ShareInfo, getSignture: () => Promise<Signture>): Promise<void>;
