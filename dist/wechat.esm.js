@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.0.1
+ * wechat.js v1.1.0
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -174,10 +174,9 @@ function getAuthQuery$1(url, checkRule) {
     return query;
 }
 
-function share$1(wx, shareInfo, appId, url) {
+function share$1(wx, shareInfo, getSignture) {
     return new Promise(function (resolve, reject) {
-        getGlobalConfig()
-            .getSignture(appId, url)
+        getSignture()
             .then(function (data) {
             const jsApiList = [
                 'onMenuShareAppMessage',
@@ -244,8 +243,8 @@ function share$1(wx, shareInfo, appId, url) {
             });
             resolve();
         })
-            .catch(function () {
-            reject();
+            .catch(function (err) {
+            reject(err);
         });
     });
 }
@@ -279,7 +278,7 @@ const pay = pay$1;
 /**
  * 版本
  */
-const version = "1.0.1";
+const version = "1.1.0";
 
 export { endAuth, getAuthQuery, init, pay, share, startAuth, startSilentAuth, version };
 //# sourceMappingURL=wechat.esm.js.map

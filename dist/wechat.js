@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.0.1
+ * wechat.js v1.1.0
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -187,10 +187,9 @@
       return query;
   }
 
-  function share$1(wx, shareInfo, appId, url) {
+  function share$1(wx, shareInfo, getSignture) {
       return new Promise(function (resolve, reject) {
-          getGlobalConfig()
-              .getSignture(appId, url)
+          getSignture()
               .then(function (data) {
               var jsApiList = [
                   'onMenuShareAppMessage',
@@ -256,8 +255,8 @@
               });
               resolve();
           })
-              .catch(function () {
-              reject();
+              .catch(function (err) {
+              reject(err);
           });
       });
   }
@@ -291,7 +290,7 @@
   /**
    * 版本
    */
-  var version = "1.0.1";
+  var version = "1.1.0";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;

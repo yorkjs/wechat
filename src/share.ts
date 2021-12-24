@@ -1,10 +1,7 @@
-import { getGlobalConfig } from './init'
-
-export function share(wx: any, shareInfo: any, appId: string, url: string): Promise<void> {
+export function share(wx: any, shareInfo: any, getSignture: () => Promise<any>): Promise<void> {
 
   return new Promise(function(resolve, reject) {
-    getGlobalConfig()
-    .getSignture(appId, url)
+    getSignture()
     .then(function (data) {
 
       const jsApiList = [
@@ -77,8 +74,8 @@ export function share(wx: any, shareInfo: any, appId: string, url: string): Prom
 
       resolve()
     })
-    .catch(function () {
-      reject()
+    .catch(function (err) {
+      reject(err)
     })
   })
 

@@ -1,1 +1,1 @@
-export declare function share(wx: any, shareInfo: any, appId: string, url: string): Promise<void>;
+export declare function share(wx: any, shareInfo: any, getSignture: () => Promise<any>): Promise<void>;

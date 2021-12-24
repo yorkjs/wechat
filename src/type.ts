@@ -18,6 +18,4 @@ export type QueryCheckRule = {
 export interface Config {
   storage: Storage,
   getTimestamp: () => number,
-  getSignture: (appId: string, url: string) => Promise<any>,
 }
-

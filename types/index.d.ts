@@ -13,4 +13,4 @@ export declare const pay: typeof Pay.pay;
 /**
  * 版本
  */
-export declare const version = "1.0.1";
+export declare const version = "1.1.0";
