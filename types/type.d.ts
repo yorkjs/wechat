@@ -15,6 +15,7 @@ export declare type Signture = {
     nonceStr: string;
     signature: string;
 };
+export declare type ApiList = string[];
 export declare type Query = {
     code?: string;
     state?: string;

@@ -18,6 +18,8 @@ export type Signture = {
   signature: string,
 }
 
+export type ApiList = string[]
+
 export type Query = {
   code?: string,
   state?: string,

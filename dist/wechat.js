@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.2.1
+ * wechat.js v1.3.0
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -187,17 +187,13 @@
       return query;
   }
 
-  function share$1(wx, signature, shareInfo, debug) {
+  function share$1(wx, signature, jsApiList, shareInfo, debug) {
       if ( debug === void 0 ) debug = false;
 
       return new Promise(function (resolve, reject) {
-          var jsApiList = [
-              'onMenuShareAppMessage',
-              'onMenuShareTimeline',
-              'updateAppMessageShareData',
-              'updateTimelineShareData',
-              'onMenuShareWeibo',
-              'previewImage' ];
+          // config 信息验证后会执行 ready 方法，所有接口调用都必须在 config 接口获得结果之后，
+          // config 是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
+          // 则须把相关接口放在 ready 函数中调用来确保正确执行
           wx.config({
               debug: debug,
               appId: signature.appId,
@@ -219,24 +215,8 @@
                               imgUrl: shareInfo.image
                           });
                       }
-                      // 旧版,用来适配Android
-                      if (result.onMenuShareAppMessage) {
-                          wx.onMenuShareAppMessage({
-                              title: shareInfo.title,
-                              desc: shareInfo.content,
-                              link: shareInfo.url,
-                              imgUrl: shareInfo.image
-                          });
-                      }
                       if (result.updateTimelineShareData) {
                           wx.updateTimelineShareData({
-                              title: shareInfo.title,
-                              link: shareInfo.url,
-                              imgUrl: shareInfo.image,
-                          });
-                      }
-                      if (result.onMenuShareTimeline) {
-                          wx.onMenuShareTimeline({
                               title: shareInfo.title,
                               link: shareInfo.url,
                               imgUrl: shareInfo.image,
@@ -250,8 +230,32 @@
                               imgUrl: shareInfo.image
                           });
                       }
+                      // 旧版,用来适配Android
+                      if (result.onMenuShareAppMessage) {
+                          // 即将废弃
+                          wx.onMenuShareAppMessage({
+                              title: shareInfo.title,
+                              desc: shareInfo.content,
+                              link: shareInfo.url,
+                              imgUrl: shareInfo.image
+                          });
+                      }
+                      if (result.onMenuShareTimeline) {
+                          // 即将废弃
+                          wx.onMenuShareTimeline({
+                              title: shareInfo.title,
+                              link: shareInfo.url,
+                              imgUrl: shareInfo.image,
+                          });
+                      }
                   }
               });
+          });
+          wx.error(function (res) {
+              // config 信息验证失败会执行 error 函数，如签名过期导致验证失败，
+              // 具体错误信息可以打开 config 的 debug 模式查看，
+              // 也可以在返回的 res 参数中查看，对于 SPA 可以在这里更新签名
+              reject(res);
           });
           resolve();
       });
@@ -286,7 +290,7 @@
   /**
    * 版本
    */
-  var version = "1.2.1";
+  var version = "1.3.0";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;
