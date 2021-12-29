@@ -25,6 +25,7 @@ yarn add @yorkjs/wechat
 ### 微信授权
 
 参考微信授权文档:
+
 https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
 
 ```js
@@ -66,6 +67,10 @@ wechat.endAuth(state)
 ```
 
 ### 分享
+参考微信网页开发 JS-SDK 说明文档:
+
+https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html
+
 ```js
 // wx: 微信网页内的 wx 对象
 // signatrue: 签名
@@ -81,7 +86,9 @@ wechat
 ### 支付
 
 参考微信支付文档:
+
 https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_7
+
 ```js
 // params 参数，参考微信支付文档的 getBrandWCPayRequest 参数定义
 wechat.pay(params)

@@ -4,6 +4,7 @@ import {
   getGlobalConfig,
 } from './init'
 import { STATE_SEPARATOR } from './constant'
+import * as Url from '@yorkjs/url'
 
 // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
 // 应用授权作用域
@@ -25,6 +26,27 @@ function auth(state: string, url: string, scope: string, appId: string, componen
 
 export function endAuth(biz: string) {
   removeStorage(biz)
+}
+
+export function normalizeUrl(url: string, callback?: (urlObject: Record<string, string>) => void): string {
+  // 去除微信授权相关 state 和 code
+  const urlObj: any = Url.parseUrl(url)
+  if (urlObj.search) {
+    const queryObj: any = Url.parseQuery(urlObj.search.slice(1))
+    if (queryObj.state && queryObj.code) {
+      delete queryObj.state
+      delete queryObj.code
+
+      const searchStr = Url.stringifyQuery(queryObj)
+      urlObj.search = searchStr ? `?${searchStr}` : ''
+    }
+  }
+
+  if (callback) {
+    callback(urlObj)
+  }
+
+  return Url.stringifyUrl(urlObj)
 }
 
 // 弹出授权页面

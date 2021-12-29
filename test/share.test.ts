@@ -6,6 +6,7 @@ const wxMock = {
   config() {},
   ready() {},
   checkJsApi() {},
+  error() {},
 }
 
 const store = {}
@@ -48,7 +49,16 @@ describe('share', () => {
       signature: '031QKAFa1rPkiC0a8DH',
     }
 
-    return share(wxMock, signtrue, shareInfo)
+    const jsApiList = [
+      'onMenuShareAppMessage',
+      'onMenuShareTimeline',
+      'updateAppMessageShareData',
+      'updateTimelineShareData',
+      'onMenuShareWeibo',
+      'previewImage',
+    ]
+
+    return share(wxMock, signtrue, jsApiList, shareInfo)
     .then(() => {
       expect(true).toEqual(true)
     })

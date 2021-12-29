@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.0
+ * wechat.js v1.3.1
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -290,7 +290,7 @@
   /**
    * 版本
    */
-  var version = "1.3.0";
+  var version = "1.3.1";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;
