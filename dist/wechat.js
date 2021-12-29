@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.1
+ * wechat.js v1.3.2
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -46,6 +46,23 @@
   }
   function endAuth$1(biz) {
       removeStorage(biz);
+  }
+  function normalizeUrl$1(url, callback) {
+      // 去除微信授权相关 state 和 code
+      var urlObj = Url.parseUrl(url);
+      if (urlObj.search) {
+          var queryObj = Url.parseQuery(urlObj.search.slice(1));
+          if (queryObj.state && queryObj.code) {
+              delete queryObj.state;
+              delete queryObj.code;
+              var searchStr = Url.stringifyQuery(queryObj);
+              urlObj.search = searchStr ? ("?" + searchStr) : '';
+          }
+      }
+      if (callback) {
+          callback(urlObj);
+      }
+      return Url.stringifyUrl(urlObj);
   }
   // 弹出授权页面
   function startAuth$1(biz, url, appId, componentAppId) {
@@ -287,14 +304,16 @@
   var getAuthQuery = getAuthQuery$1;
   var share = share$1;
   var pay = pay$1;
+  var normalizeUrl = normalizeUrl$1;
   /**
    * 版本
    */
-  var version = "1.3.1";
+  var version = "1.3.2";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;
   exports.init = init;
+  exports.normalizeUrl = normalizeUrl;
   exports.pay = pay;
   exports.share = share;
   exports.startAuth = startAuth;

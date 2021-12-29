@@ -10,7 +10,8 @@ export declare const endAuth: typeof Auth.endAuth;
 export declare const getAuthQuery: typeof Query.getAuthQuery;
 export declare const share: typeof Share.share;
 export declare const pay: typeof Pay.pay;
+export declare const normalizeUrl: typeof Auth.normalizeUrl;
 /**
  * 版本
  */
-export declare const version = "1.3.1";
+export declare const version = "1.3.2";

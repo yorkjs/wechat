@@ -11,6 +11,7 @@ export const endAuth = Auth.endAuth
 export const getAuthQuery = Query.getAuthQuery
 export const share =  Share.share
 export const pay = Pay.pay
+export const normalizeUrl = Auth.normalizeUrl
 
 /**
  * 版本
