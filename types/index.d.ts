@@ -11,7 +11,8 @@ export declare const getAuthQuery: typeof Query.getAuthQuery;
 export declare const share: typeof Share.share;
 export declare const pay: typeof Pay.pay;
 export declare const normalizeUrl: typeof Auth.normalizeUrl;
+export declare const normalizeShareUrl: typeof Auth.normalizeShareUrl;
 /**
  * 版本
  */
-export declare const version = "1.3.2";
+export declare const version = "1.3.3";

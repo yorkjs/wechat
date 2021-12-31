@@ -1,3 +1,11 @@
+// 注意：需要放到最前面, Auth 初始化时，引入的 util，会首先读取 navigator.userAgent
+// 模拟 navigator.userAgent
+Object.defineProperty(window.navigator, "userAgent", {
+  get() {
+    return 'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Mobile Safari/537.36'
+  },
+})
+
 import * as Init from '../src/init'
 import { Config } from '../src/type'
 import * as Auth from '../src/auth'
@@ -24,7 +32,6 @@ const globalConfig = {
 
 beforeAll(() => {
   Init.init(globalConfig)
-
 })
 
 describe('Auth', () => {
@@ -63,6 +70,36 @@ describe('Auth', () => {
       })
 
       let expected = 'https://test-www.finstao.com/enterprise/83377475330?test=true#/pages/mall/product/order/index?count=1&sku_id=70559864181'
+      expect(result).toEqual(expected)
+    })
+  })
+
+  describe('normalizeShareUrl isAndroid', () => {
+    test('has query', () => {
+      let url = 'https://test-www.finstao.com/enterprise/83377475330?count=1#/pages/mall/product/order/index?count=1'
+      let result = Auth.normalizeShareUrl(url)
+
+      let expected = 'https://test-www.finstao.com/enterprise/83377475330?count=1#/pages/mall/product/order/index?count=1'
+      expect(result).toEqual(expected)
+
+      url = 'https://test-www.finstao.com/enterprise/83377475330??#/pages/mall/product/order/index?count=1'
+      result = Auth.normalizeShareUrl(url)
+
+      expected = 'https://test-www.finstao.com/enterprise/83377475330??#/pages/mall/product/order/index?count=1'
+      expect(result).toEqual(expected)
+    })
+
+    test('no query', () => {
+      let url = 'https://test-www.finstao.com/enterprise/83377475330#/pages/mall/product/order/index?count=1'
+      let result = Auth.normalizeShareUrl(url)
+
+      let expected = 'https://test-www.finstao.com/enterprise/83377475330?#/pages/mall/product/order/index?count=1'
+      expect(result).toEqual(expected)
+
+      url = 'https://test-www.finstao.com/enterprise/83377475330?#/pages/mall/product/order/index?count=1'
+      result = Auth.normalizeShareUrl(url)
+
+      expected = 'https://test-www.finstao.com/enterprise/83377475330?#/pages/mall/product/order/index?count=1'
       expect(result).toEqual(expected)
     })
   })

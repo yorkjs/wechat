@@ -1,10 +1,16 @@
+import * as Url from '@yorkjs/url'
+
 import {
   setStorage,
   removeStorage,
   getGlobalConfig,
 } from './init'
+
+import {
+  isAndroid
+} from './util'
+
 import { STATE_SEPARATOR } from './constant'
-import * as Url from '@yorkjs/url'
 
 // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
 // 应用授权作用域
@@ -26,6 +32,21 @@ function auth(state: string, url: string, scope: string, appId: string, componen
 
 export function endAuth(biz: string) {
   removeStorage(biz)
+}
+
+export function normalizeShareUrl(url: string, callback?: (urlObject: Record<string, string>) => void): string {
+  return normalizeUrl(url, function (urlObj: Record<string, string>) {
+    if (callback) {
+      callback(urlObj)
+    }
+
+    // Bugfix: https://zhuanlan.zhihu.com/p/45068949
+    // 安卓系统，把 /# 变成 /?#，防止微信分享时，把链接 # 后边的字符串都截掉了，导致分享出去的链接不对
+    const hasSearch = urlObj.search && urlObj.search !== '?'
+    if (isAndroid && !hasSearch && urlObj.hash) {
+      urlObj.hash = `?${urlObj.hash}`
+    }
+  })
 }
 
 export function normalizeUrl(url: string, callback?: (urlObject: Record<string, string>) => void): string {

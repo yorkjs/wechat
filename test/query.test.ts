@@ -69,7 +69,7 @@ beforeAll(() => {
       get() {
         return hrefUrl
       }
-  });
+  })
 
   delete (window as any).location
   window.location = location

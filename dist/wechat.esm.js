@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.2
+ * wechat.js v1.3.3
  * (c) 2021 shushu2013
  * Released under the MIT License.
  */
@@ -26,6 +26,10 @@ function removeStorage(key) {
     globalConfig.storage.remove(`${STORAGE_PREFIX}_${key}`);
 }
 
+const userAgent = navigator.userAgent;
+/iphone|ipad/i.test(userAgent);
+const isAndroid = /android/i.test(userAgent);
+
 // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
 // 应用授权作用域
 // snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid），
@@ -42,6 +46,19 @@ function auth(state, url, scope, appId, componentAppId) {
 }
 function endAuth$1(biz) {
     removeStorage(biz);
+}
+function normalizeShareUrl$1(url, callback) {
+    return normalizeUrl$1(url, function (urlObj) {
+        if (callback) {
+            callback(urlObj);
+        }
+        // Bugfix: https://zhuanlan.zhihu.com/p/45068949
+        // 安卓系统，把 /# 变成 /?#，防止微信分享时，把链接 # 后边的字符串都截掉了，导致分享出去的链接不对
+        const hasSearch = urlObj.search && urlObj.search !== '?';
+        if (isAndroid && !hasSearch && urlObj.hash) {
+            urlObj.hash = `?${urlObj.hash}`;
+        }
+    });
 }
 function normalizeUrl$1(url, callback) {
     // 去除微信授权相关 state 和 code
@@ -290,10 +307,11 @@ const getAuthQuery = getAuthQuery$1;
 const share = share$1;
 const pay = pay$1;
 const normalizeUrl = normalizeUrl$1;
+const normalizeShareUrl = normalizeShareUrl$1;
 /**
  * 版本
  */
-const version = "1.3.2";
+const version = "1.3.3";
 
-export { endAuth, getAuthQuery, init, normalizeUrl, pay, share, startAuth, startSilentAuth, version };
+export { endAuth, getAuthQuery, init, normalizeShareUrl, normalizeUrl, pay, share, startAuth, startSilentAuth, version };
 //# sourceMappingURL=wechat.esm.js.map
