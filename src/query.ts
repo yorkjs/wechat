@@ -1,78 +1,17 @@
 import * as Url from '@yorkjs/url'
 
-import { AUTH_PAGE_UNLOAD_TIMESTAMP, STATE_SEPARATOR } from './constant'
+import { AUTH_PAGE_UNLOAD_TIMESTAMP } from './constant'
 import { Query, QueryCheckRule } from './type'
 import { getGlobalConfig, getStorage } from './init'
 
 const stateMap = {}
 
-function isValidTimestamp(ts :number, expireTimestamp: number): boolean {
-  const globalConfig = getGlobalConfig()
-  const nowTimestamp = globalConfig.getTimestamp()
-
-  if (ts <= 0) {
-    return false
-  }
-
-  const isTsValid = nowTimestamp - ts < expireTimestamp
-
-  let isAuthUnloadTimeValid = false
+function isValidTimestamp(expireTimestamp: number): boolean {
+  const nowTimestamp = getGlobalConfig().getTimestamp()
   const authPageUnloadTimestamp = getStorage(AUTH_PAGE_UNLOAD_TIMESTAMP)
+
   if (authPageUnloadTimestamp) {
-    isAuthUnloadTimeValid = nowTimestamp - authPageUnloadTimestamp < expireTimestamp
-  }
-
-  // 两者之一在有效时间内即可
-  return isTsValid || isAuthUnloadTimeValid
-}
-
-function checkStorageState(storeState: string, checkRule: QueryCheckRule): boolean {
-
-  let stateStorageValue: any = getStorage(storeState) || {}
-  if (stateStorageValue && typeof stateStorageValue === 'string') {
-    try {
-      stateStorageValue = JSON.parse(stateStorageValue)
-    }
-    catch (error) {
-      stateStorageValue = {}
-    }
-  }
-
-  const { expireSeconds, once } = checkRule
-  const { state, timestamp } = stateStorageValue
-  if (state && timestamp) {
-    // 1 时间是否过期
-    if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
-      return false
-    }
-
-    // 2 是否读取过了
-    if (once && stateMap[state]) {
-      return false
-    }
-
-    return true
-  }
-
-  return false
-}
-
-function isEqualQueryAndStorage(query: Query) {
-
-  const { state, timestamp } = query
-  if (state && timestamp) {
-
-    let stateStorageValue: any = getStorage(state) || {}
-    if (stateStorageValue && typeof stateStorageValue === 'string') {
-      try {
-        stateStorageValue = JSON.parse(stateStorageValue)
-      }
-      catch (error) {
-        stateStorageValue = {}
-      }
-    }
-
-    return stateStorageValue.state === state && stateStorageValue.timestamp === timestamp
+    return nowTimestamp - authPageUnloadTimestamp < expireTimestamp
   }
 
   return false
@@ -81,11 +20,11 @@ function isEqualQueryAndStorage(query: Query) {
 function checkQueryState(query: Query, checkRule: QueryCheckRule): boolean {
 
   const { expireSeconds, once } = checkRule
-  const { state, timestamp } = query
-  if (state && timestamp) {
+  const { state } = query
+  if (state) {
 
     // 1 时间是否过期
-    if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
+    if (expireSeconds && !isValidTimestamp(expireSeconds * 1000)) {
       return false
     }
 
@@ -99,7 +38,6 @@ function checkQueryState(query: Query, checkRule: QueryCheckRule): boolean {
 
   return false
 }
-
 
 // 解析 query
 function parseAuthQuery(url: string): Query {
@@ -113,11 +51,8 @@ function parseAuthQuery(url: string): Query {
 
   const queryObj: any = Url.parseQuery(urlObj.search.slice(1))
   if (queryObj.state && queryObj.code) {
-    const [ state, timestamp ] = queryObj.state.split(STATE_SEPARATOR)
-
     query.code = queryObj.code
-    query.state = state
-    query.timestamp = +timestamp
+    query.state = queryObj.state
   }
 
   return query
@@ -128,8 +63,8 @@ export function getAuthQuery(url: string, checkRule?: QueryCheckRule): Query {
 
   const query: Query = parseAuthQuery(url)
 
-  const { state, code, timestamp } = query
-  if (state && code && timestamp) {
+  const { state, code } = query
+  if (state && code) {
 
     // 1. 不需要校验
     if (!checkRule) {
@@ -143,17 +78,7 @@ export function getAuthQuery(url: string, checkRule?: QueryCheckRule): Query {
       return {}
     }
 
-    // 3. 校验 storage 里的参数是否合法
-    if (!checkStorageState(state, checkRule)) {
-      return {}
-    }
-
-    // 4. 校验 query 和 storage 里存储的是否一致
-    if (!isEqualQueryAndStorage(query)) {
-      return {}
-    }
-
-    // 5. 在当前页面生命周期生效,只读一次，记录 stateMap
+    // 3. 在当前页面生命周期生效,只读一次，记录 stateMap
     if (once) {
       stateMap[state] = true
     }

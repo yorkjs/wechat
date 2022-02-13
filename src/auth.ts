@@ -12,13 +12,12 @@ import {
 
 import {
   AUTH_PAGE_UNLOAD_TIMESTAMP,
-  STATE_SEPARATOR,
 } from './constant'
 
 let isAuthing = false
 // 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
 // 用作微信授权后，重定向回来判断时间是否过期
-window.addEventListener("unload", function(_) {
+window.addEventListener('unload', function (_) {
   if (isAuthing) {
     setStorage(AUTH_PAGE_UNLOAD_TIMESTAMP, getGlobalConfig().getTimestamp())
   }
@@ -45,7 +44,6 @@ function auth(state: string, url: string, scope: string, appId: string, componen
 
 export function endAuth(biz: string) {
   removeStorage(AUTH_PAGE_UNLOAD_TIMESTAMP)
-  removeStorage(biz)
 }
 
 export function normalizeShareUrl(url: string, callback?: (urlObject: Record<string, string>) => void): string {
@@ -86,34 +84,16 @@ export function normalizeUrl(url: string, callback?: (urlObject: Record<string, 
 
 // 弹出授权页面
 export function startAuth(biz: string, url: string, appId: string, componentAppId?: string) {
-  const timestamp = getGlobalConfig().getTimestamp()
-  const state = encodeURIComponent(`${biz}${STATE_SEPARATOR}${timestamp}`)
+  const state = encodeURIComponent(biz)
   const scope = 'snsapi_userinfo'
-
-  setStorage(
-    biz,
-    JSON.stringify({
-      state: biz,
-      timestamp,
-    })
-  )
 
   auth(state, url, scope, appId, componentAppId)
 }
 
 // 静默授权，不弹出授权页面
 export function startSilentAuth(biz: string, url: string, appId: string, componentAppId?: string) {
-  const timestamp = getGlobalConfig().getTimestamp()
-  const state = encodeURIComponent(`${biz}${STATE_SEPARATOR}${timestamp}`)
+  const state = encodeURIComponent(biz)
   const scope = 'snsapi_base'
-
-  setStorage(
-    biz,
-    JSON.stringify({
-      state: biz,
-      timestamp,
-    })
-  )
 
   auth(state, url, scope, appId, componentAppId)
 }

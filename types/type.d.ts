@@ -19,7 +19,6 @@ export declare type ApiList = string[];
 export declare type Query = {
     code?: string;
     state?: string;
-    timestamp?: number;
 };
 export declare type QueryCheckRule = {
     expireSeconds?: number;

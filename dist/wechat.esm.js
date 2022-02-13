@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.4
+ * wechat.js v1.3.5
  * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
@@ -7,7 +7,6 @@
 import * as Url from '@yorkjs/url';
 
 const STORAGE_PREFIX = '@@wechat@@';
-const STATE_SEPARATOR = '@';
 const AUTH_PAGE_UNLOAD_TIMESTAMP = 'auth_page_unload_timestamp';
 
 let globalConfig;
@@ -34,7 +33,7 @@ const isAndroid = /android/i.test(userAgent);
 let isAuthing = false;
 // 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
 // 用作微信授权后，重定向回来判断时间是否过期
-window.addEventListener("unload", function (_) {
+window.addEventListener('unload', function (_) {
     if (isAuthing) {
         setStorage(AUTH_PAGE_UNLOAD_TIMESTAMP, getGlobalConfig().getTimestamp());
     }
@@ -56,7 +55,6 @@ function auth(state, url, scope, appId, componentAppId) {
 }
 function endAuth$1(biz) {
     removeStorage(AUTH_PAGE_UNLOAD_TIMESTAMP);
-    removeStorage(biz);
 }
 function normalizeShareUrl$1(url, callback) {
     return normalizeUrl$1(url, function (urlObj) {
@@ -90,90 +88,32 @@ function normalizeUrl$1(url, callback) {
 }
 // 弹出授权页面
 function startAuth$1(biz, url, appId, componentAppId) {
-    const timestamp = getGlobalConfig().getTimestamp();
-    const state = encodeURIComponent(`${biz}${STATE_SEPARATOR}${timestamp}`);
+    const state = encodeURIComponent(biz);
     const scope = 'snsapi_userinfo';
-    setStorage(biz, JSON.stringify({
-        state: biz,
-        timestamp,
-    }));
     auth(state, url, scope, appId, componentAppId);
 }
 // 静默授权，不弹出授权页面
 function startSilentAuth$1(biz, url, appId, componentAppId) {
-    const timestamp = getGlobalConfig().getTimestamp();
-    const state = encodeURIComponent(`${biz}${STATE_SEPARATOR}${timestamp}`);
+    const state = encodeURIComponent(biz);
     const scope = 'snsapi_base';
-    setStorage(biz, JSON.stringify({
-        state: biz,
-        timestamp,
-    }));
     auth(state, url, scope, appId, componentAppId);
 }
 
 const stateMap = {};
-function isValidTimestamp(ts, expireTimestamp) {
-    const globalConfig = getGlobalConfig();
-    const nowTimestamp = globalConfig.getTimestamp();
-    if (ts <= 0) {
-        return false;
-    }
-    const isTsValid = nowTimestamp - ts < expireTimestamp;
-    let isAuthUnloadTimeValid = false;
+function isValidTimestamp(expireTimestamp) {
+    const nowTimestamp = getGlobalConfig().getTimestamp();
     const authPageUnloadTimestamp = getStorage(AUTH_PAGE_UNLOAD_TIMESTAMP);
     if (authPageUnloadTimestamp) {
-        isAuthUnloadTimeValid = nowTimestamp - authPageUnloadTimestamp < expireTimestamp;
-    }
-    // 两者之一在有效时间内即可
-    return isTsValid || isAuthUnloadTimeValid;
-}
-function checkStorageState(storeState, checkRule) {
-    let stateStorageValue = getStorage(storeState) || {};
-    if (stateStorageValue && typeof stateStorageValue === 'string') {
-        try {
-            stateStorageValue = JSON.parse(stateStorageValue);
-        }
-        catch (error) {
-            stateStorageValue = {};
-        }
-    }
-    const { expireSeconds, once } = checkRule;
-    const { state, timestamp } = stateStorageValue;
-    if (state && timestamp) {
-        // 1 时间是否过期
-        if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
-            return false;
-        }
-        // 2 是否读取过了
-        if (once && stateMap[state]) {
-            return false;
-        }
-        return true;
-    }
-    return false;
-}
-function isEqualQueryAndStorage(query) {
-    const { state, timestamp } = query;
-    if (state && timestamp) {
-        let stateStorageValue = getStorage(state) || {};
-        if (stateStorageValue && typeof stateStorageValue === 'string') {
-            try {
-                stateStorageValue = JSON.parse(stateStorageValue);
-            }
-            catch (error) {
-                stateStorageValue = {};
-            }
-        }
-        return stateStorageValue.state === state && stateStorageValue.timestamp === timestamp;
+        return nowTimestamp - authPageUnloadTimestamp < expireTimestamp;
     }
     return false;
 }
 function checkQueryState(query, checkRule) {
     const { expireSeconds, once } = checkRule;
-    const { state, timestamp } = query;
-    if (state && timestamp) {
+    const { state } = query;
+    if (state) {
         // 1 时间是否过期
-        if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
+        if (expireSeconds && !isValidTimestamp(expireSeconds * 1000)) {
             return false;
         }
         // 2 是否读取过了
@@ -193,18 +133,16 @@ function parseAuthQuery(url) {
     }
     const queryObj = Url.parseQuery(urlObj.search.slice(1));
     if (queryObj.state && queryObj.code) {
-        const [state, timestamp] = queryObj.state.split(STATE_SEPARATOR);
         query.code = queryObj.code;
-        query.state = state;
-        query.timestamp = +timestamp;
+        query.state = queryObj.state;
     }
     return query;
 }
 // 读取 query
 function getAuthQuery$1(url, checkRule) {
     const query = parseAuthQuery(url);
-    const { state, code, timestamp } = query;
-    if (state && code && timestamp) {
+    const { state, code } = query;
+    if (state && code) {
         // 1. 不需要校验
         if (!checkRule) {
             return query;
@@ -214,15 +152,7 @@ function getAuthQuery$1(url, checkRule) {
         if (!checkQueryState(query, checkRule)) {
             return {};
         }
-        // 3. 校验 storage 里的参数是否合法
-        if (!checkStorageState(state, checkRule)) {
-            return {};
-        }
-        // 4. 校验 query 和 storage 里存储的是否一致
-        if (!isEqualQueryAndStorage(query)) {
-            return {};
-        }
-        // 5. 在当前页面生命周期生效,只读一次，记录 stateMap
+        // 3. 在当前页面生命周期生效,只读一次，记录 stateMap
         if (once) {
             stateMap[state] = true;
         }
@@ -333,7 +263,7 @@ const normalizeShareUrl = normalizeShareUrl$1;
 /**
  * 版本
  */
-const version = "1.3.4";
+const version = "1.3.5";
 
 export { endAuth, getAuthQuery, init, normalizeShareUrl, normalizeUrl, pay, share, startAuth, startSilentAuth, version };
 //# sourceMappingURL=wechat.esm.js.map

@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.4
+ * wechat.js v1.3.5
  * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
@@ -11,7 +11,6 @@
 })(this, (function (exports, Url) { 'use strict';
 
   var STORAGE_PREFIX = '@@wechat@@';
-  var STATE_SEPARATOR = '@';
   var AUTH_PAGE_UNLOAD_TIMESTAMP = 'auth_page_unload_timestamp';
 
   var globalConfig;
@@ -38,7 +37,7 @@
   var isAuthing = false;
   // 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
   // 用作微信授权后，重定向回来判断时间是否过期
-  window.addEventListener("unload", function (_) {
+  window.addEventListener('unload', function (_) {
       if (isAuthing) {
           setStorage(AUTH_PAGE_UNLOAD_TIMESTAMP, getGlobalConfig().getTimestamp());
       }
@@ -60,7 +59,6 @@
   }
   function endAuth$1(biz) {
       removeStorage(AUTH_PAGE_UNLOAD_TIMESTAMP);
-      removeStorage(biz);
   }
   function normalizeShareUrl$1(url, callback) {
       return normalizeUrl$1(url, function (urlObj) {
@@ -94,84 +92,23 @@
   }
   // 弹出授权页面
   function startAuth$1(biz, url, appId, componentAppId) {
-      var timestamp = getGlobalConfig().getTimestamp();
-      var state = encodeURIComponent(("" + biz + STATE_SEPARATOR + timestamp));
+      var state = encodeURIComponent(biz);
       var scope = 'snsapi_userinfo';
-      setStorage(biz, JSON.stringify({
-          state: biz,
-          timestamp: timestamp,
-      }));
       auth(state, url, scope, appId, componentAppId);
   }
   // 静默授权，不弹出授权页面
   function startSilentAuth$1(biz, url, appId, componentAppId) {
-      var timestamp = getGlobalConfig().getTimestamp();
-      var state = encodeURIComponent(("" + biz + STATE_SEPARATOR + timestamp));
+      var state = encodeURIComponent(biz);
       var scope = 'snsapi_base';
-      setStorage(biz, JSON.stringify({
-          state: biz,
-          timestamp: timestamp,
-      }));
       auth(state, url, scope, appId, componentAppId);
   }
 
   var stateMap = {};
-  function isValidTimestamp(ts, expireTimestamp) {
-      var globalConfig = getGlobalConfig();
-      var nowTimestamp = globalConfig.getTimestamp();
-      if (ts <= 0) {
-          return false;
-      }
-      var isTsValid = nowTimestamp - ts < expireTimestamp;
-      var isAuthUnloadTimeValid = false;
+  function isValidTimestamp(expireTimestamp) {
+      var nowTimestamp = getGlobalConfig().getTimestamp();
       var authPageUnloadTimestamp = getStorage(AUTH_PAGE_UNLOAD_TIMESTAMP);
       if (authPageUnloadTimestamp) {
-          isAuthUnloadTimeValid = nowTimestamp - authPageUnloadTimestamp < expireTimestamp;
-      }
-      // 两者之一在有效时间内即可
-      return isTsValid || isAuthUnloadTimeValid;
-  }
-  function checkStorageState(storeState, checkRule) {
-      var stateStorageValue = getStorage(storeState) || {};
-      if (stateStorageValue && typeof stateStorageValue === 'string') {
-          try {
-              stateStorageValue = JSON.parse(stateStorageValue);
-          }
-          catch (error) {
-              stateStorageValue = {};
-          }
-      }
-      var expireSeconds = checkRule.expireSeconds;
-      var once = checkRule.once;
-      var state = stateStorageValue.state;
-      var timestamp = stateStorageValue.timestamp;
-      if (state && timestamp) {
-          // 1 时间是否过期
-          if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
-              return false;
-          }
-          // 2 是否读取过了
-          if (once && stateMap[state]) {
-              return false;
-          }
-          return true;
-      }
-      return false;
-  }
-  function isEqualQueryAndStorage(query) {
-      var state = query.state;
-      var timestamp = query.timestamp;
-      if (state && timestamp) {
-          var stateStorageValue = getStorage(state) || {};
-          if (stateStorageValue && typeof stateStorageValue === 'string') {
-              try {
-                  stateStorageValue = JSON.parse(stateStorageValue);
-              }
-              catch (error) {
-                  stateStorageValue = {};
-              }
-          }
-          return stateStorageValue.state === state && stateStorageValue.timestamp === timestamp;
+          return nowTimestamp - authPageUnloadTimestamp < expireTimestamp;
       }
       return false;
   }
@@ -179,10 +116,9 @@
       var expireSeconds = checkRule.expireSeconds;
       var once = checkRule.once;
       var state = query.state;
-      var timestamp = query.timestamp;
-      if (state && timestamp) {
+      if (state) {
           // 1 时间是否过期
-          if (expireSeconds && !isValidTimestamp(timestamp, expireSeconds * 1000)) {
+          if (expireSeconds && !isValidTimestamp(expireSeconds * 1000)) {
               return false;
           }
           // 2 是否读取过了
@@ -202,12 +138,8 @@
       }
       var queryObj = Url.parseQuery(urlObj.search.slice(1));
       if (queryObj.state && queryObj.code) {
-          var ref = queryObj.state.split(STATE_SEPARATOR);
-          var state = ref[0];
-          var timestamp = ref[1];
           query.code = queryObj.code;
-          query.state = state;
-          query.timestamp = +timestamp;
+          query.state = queryObj.state;
       }
       return query;
   }
@@ -216,8 +148,7 @@
       var query = parseAuthQuery(url);
       var state = query.state;
       var code = query.code;
-      var timestamp = query.timestamp;
-      if (state && code && timestamp) {
+      if (state && code) {
           // 1. 不需要校验
           if (!checkRule) {
               return query;
@@ -227,15 +158,7 @@
           if (!checkQueryState(query, checkRule)) {
               return {};
           }
-          // 3. 校验 storage 里的参数是否合法
-          if (!checkStorageState(state, checkRule)) {
-              return {};
-          }
-          // 4. 校验 query 和 storage 里存储的是否一致
-          if (!isEqualQueryAndStorage(query)) {
-              return {};
-          }
-          // 5. 在当前页面生命周期生效,只读一次，记录 stateMap
+          // 3. 在当前页面生命周期生效,只读一次，记录 stateMap
           if (once) {
               stateMap[state] = true;
           }
@@ -348,7 +271,7 @@
   /**
    * 版本
    */
-  var version = "1.3.4";
+  var version = "1.3.5";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;

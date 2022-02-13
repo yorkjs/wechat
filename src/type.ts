@@ -23,7 +23,6 @@ export type ApiList = string[]
 export type Query = {
   code?: string,
   state?: string,
-  timestamp?: number,
 }
 
 export type QueryCheckRule = {
