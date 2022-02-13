@@ -1,6 +1,6 @@
 /**
- * wechat.js v1.3.3
- * (c) 2021 shushu2013
+ * wechat.js v1.3.4
+ * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
 
@@ -12,6 +12,7 @@
 
   var STORAGE_PREFIX = '@@wechat@@';
   var STATE_SEPARATOR = '@';
+  var AUTH_PAGE_UNLOAD_TIMESTAMP = 'auth_page_unload_timestamp';
 
   var globalConfig;
   function init$1(config) {
@@ -34,6 +35,14 @@
   /iphone|ipad/i.test(userAgent);
   var isAndroid = /android/i.test(userAgent);
 
+  var isAuthing = false;
+  // 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
+  // 用作微信授权后，重定向回来判断时间是否过期
+  window.addEventListener("unload", function (_) {
+      if (isAuthing) {
+          setStorage(AUTH_PAGE_UNLOAD_TIMESTAMP, getGlobalConfig().getTimestamp());
+      }
+  });
   // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
   // 应用授权作用域
   // snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid），
@@ -46,9 +55,11 @@
       if (componentAppId) {
           queryStr += "&component_appid=" + componentAppId;
       }
+      isAuthing = true;
       location.href = "https://open.weixin.qq.com/connect/oauth2/authorize?" + queryStr + "#wechat_redirect";
   }
   function endAuth$1(biz) {
+      removeStorage(AUTH_PAGE_UNLOAD_TIMESTAMP);
       removeStorage(biz);
   }
   function normalizeShareUrl$1(url, callback) {
@@ -107,7 +118,18 @@
   var stateMap = {};
   function isValidTimestamp(ts, expireTimestamp) {
       var globalConfig = getGlobalConfig();
-      return ts > 0 && globalConfig.getTimestamp() - ts < expireTimestamp;
+      var nowTimestamp = globalConfig.getTimestamp();
+      if (ts <= 0) {
+          return false;
+      }
+      var isTsValid = nowTimestamp - ts < expireTimestamp;
+      var isAuthUnloadTimeValid = false;
+      var authPageUnloadTimestamp = getStorage(AUTH_PAGE_UNLOAD_TIMESTAMP);
+      if (authPageUnloadTimestamp) {
+          isAuthUnloadTimeValid = nowTimestamp - authPageUnloadTimestamp < expireTimestamp;
+      }
+      // 两者之一在有效时间内即可
+      return isTsValid || isAuthUnloadTimeValid;
   }
   function checkStorageState(storeState, checkRule) {
       var stateStorageValue = getStorage(storeState) || {};
@@ -326,7 +348,7 @@
   /**
    * 版本
    */
-  var version = "1.3.3";
+  var version = "1.3.4";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;

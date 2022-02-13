@@ -1,6 +1,6 @@
 import * as Url from '@yorkjs/url'
 
-import { STATE_SEPARATOR } from './constant'
+import { AUTH_PAGE_UNLOAD_TIMESTAMP, STATE_SEPARATOR } from './constant'
 import { Query, QueryCheckRule } from './type'
 import { getGlobalConfig, getStorage } from './init'
 
@@ -8,7 +8,22 @@ const stateMap = {}
 
 function isValidTimestamp(ts :number, expireTimestamp: number): boolean {
   const globalConfig = getGlobalConfig()
-  return ts > 0 && globalConfig.getTimestamp() - ts < expireTimestamp
+  const nowTimestamp = globalConfig.getTimestamp()
+
+  if (ts <= 0) {
+    return false
+  }
+
+  const isTsValid = nowTimestamp - ts < expireTimestamp
+
+  let isAuthUnloadTimeValid = false
+  const authPageUnloadTimestamp = getStorage(AUTH_PAGE_UNLOAD_TIMESTAMP)
+  if (authPageUnloadTimestamp) {
+    isAuthUnloadTimeValid = nowTimestamp - authPageUnloadTimestamp < expireTimestamp
+  }
+
+  // 两者之一在有效时间内即可
+  return isTsValid || isAuthUnloadTimeValid
 }
 
 function checkStorageState(storeState: string, checkRule: QueryCheckRule): boolean {

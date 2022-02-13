@@ -10,7 +10,19 @@ import {
   isAndroid
 } from './util'
 
-import { STATE_SEPARATOR } from './constant'
+import {
+  AUTH_PAGE_UNLOAD_TIMESTAMP,
+  STATE_SEPARATOR,
+} from './constant'
+
+let isAuthing = false
+// 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
+// 用作微信授权后，重定向回来判断时间是否过期
+window.addEventListener("unload", function(_) {
+  if (isAuthing) {
+    setStorage(AUTH_PAGE_UNLOAD_TIMESTAMP, getGlobalConfig().getTimestamp())
+  }
+})
 
 // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
 // 应用授权作用域
@@ -27,10 +39,12 @@ function auth(state: string, url: string, scope: string, appId: string, componen
     queryStr += `&component_appid=${componentAppId}`
   }
 
+  isAuthing = true
   location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?${queryStr}#wechat_redirect`
 }
 
 export function endAuth(biz: string) {
+  removeStorage(AUTH_PAGE_UNLOAD_TIMESTAMP)
   removeStorage(biz)
 }
 
