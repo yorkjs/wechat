@@ -1,5 +1,6 @@
 import * as Url from '@yorkjs/url'
 import * as Auth from '../src/auth'
+import { AUTH_PAGE_UNLOAD_TIMESTAMP } from '../src/constant'
 import * as Init from '../src/init'
 import * as queryUtil from '../src/query'
 import { Config, Query } from '../src/type'
@@ -59,6 +60,7 @@ beforeAll(() => {
           else {
             redirectUrlObj.search = '?' + Url.stringifyQuery(query)
           }
+          Init.setStorage(AUTH_PAGE_UNLOAD_TIMESTAMP, globalConfig.getTimestamp())
 
           // console.log(Url.stringifyUrl(redirectUrlObj))
           hrefUrl = Url.stringifyUrl(redirectUrlObj)
@@ -78,7 +80,7 @@ beforeAll(() => {
 describe('test query getAuthQuery', () => {
   describe('getAuthQuery no checkRule', () => {
     test('url has state', () => {
-      let url = 'https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_try_bind%401639679669384&code=061b5BFa1xEliC04g7Ga1mlCQg2b5BFV&state=wechat_try_bind%401639679992118&code=021zQ0000FsVXM1FeH100647LZ1zQ00f&state=wechat_try_bind%401639680102278#/pages/mall/product/order/index?count=1&sku_id=70559864181'
+      let url = 'https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_try_bind&code=061b5BFa1xEliC04g7Ga1mlCQg2b5BFV&state=wechat_try_bind&code=021zQ0000FsVXM1FeH100647LZ1zQ00f&state=wechat_try_bind#/pages/mall/product/order/index?count=1&sku_id=70559864181'
       let expected = {}
 
       // 第一次读取
@@ -86,7 +88,6 @@ describe('test query getAuthQuery', () => {
       expected = {
         code: '021zQ0000FsVXM1FeH100647LZ1zQ00f',
         state: 'wechat_try_bind',
-        timestamp: 1639680102278,
       }
 
       expect(result).toEqual(expected)
@@ -104,7 +105,7 @@ describe('test query getAuthQuery', () => {
 
       expect(result).toEqual(expected)
 
-      url = 'https://test-www.finstao.com/enterprise/83377475330#/pages/mall/product/detail?state=wechat_try_bind%401639679669384&code=061b5BFa1xEliC04g7Ga1mlCQg2b5BFV'
+      url = 'https://test-www.finstao.com/enterprise/83377475330#/pages/mall/product/detail?state=wechat_try_bind&code=061b5BFa1xEliC04g7Ga1mlCQg2b5BFV'
 
       result = queryUtil.getAuthQuery(url)
       expected = {}
@@ -115,7 +116,7 @@ describe('test query getAuthQuery', () => {
 
   describe('getAuthQuery has checkRule', () => {
     test('expireSeconds', (done) => {
-      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay@138928828`
+      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay`
       let expected: Query = {}
 
       // 先发起请求
@@ -150,7 +151,7 @@ describe('test query getAuthQuery', () => {
     })
 
     test('expireSeconds invalid', (done) => {
-      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay@138928828`
+      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay`
       let expected: Query = {}
 
       // 先发起请求
@@ -169,7 +170,7 @@ describe('test query getAuthQuery', () => {
     })
 
     test('once sucess', () => {
-      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay@138928828`
+      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay`
       let expected: Query = {}
 
       // 先发起请求
@@ -192,7 +193,7 @@ describe('test query getAuthQuery', () => {
     })
 
     test('once and expireSeconds', () => {
-      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay@138928828`
+      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay`
       let expected: Query = {}
 
       // 先发起请求
@@ -218,7 +219,7 @@ describe('test query getAuthQuery', () => {
 
   describe('startAuth and endAuth', () => {
     test('endAuth', () => {
-      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay@138928828`
+      let url = `https://test-www.finstao.com/enterprise/83377475330?code=031QKAFa1rPkiC0a8DHa1r3fx23QKAFm&state=wechat_pay`
       let expected: Query = {}
 
       // 先发起请求
