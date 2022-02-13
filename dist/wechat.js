@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.5
+ * wechat.js v1.3.6
  * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
@@ -31,17 +31,28 @@
   }
 
   var userAgent = navigator.userAgent;
-  /iphone|ipad/i.test(userAgent);
+  var isIos = /iphone|ipad/i.test(userAgent);
   var isAndroid = /android/i.test(userAgent);
 
   var isAuthing = false;
-  // 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
-  // 用作微信授权后，重定向回来判断时间是否过期
-  window.addEventListener('unload', function (_) {
+  function setAuthPageUnloadTimestamp() {
       if (isAuthing) {
           setStorage(AUTH_PAGE_UNLOAD_TIMESTAMP, getGlobalConfig().getTimestamp());
       }
-  });
+  }
+  // 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
+  // 用作微信授权后，重定向回来判断时间是否过期
+  if (isIos) {
+      // iOS 的 unload 不起作用，改为监听 pagehide
+      window.addEventListener('pagehide', function (_) {
+          setAuthPageUnloadTimestamp();
+      });
+  }
+  else {
+      window.addEventListener('unload', function (_) {
+          setAuthPageUnloadTimestamp();
+      });
+  }
   // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
   // 应用授权作用域
   // snsapi_base （不弹出授权页面，直接跳转，只能获取用户openid），
@@ -271,7 +282,7 @@
   /**
    * 版本
    */
-  var version = "1.3.5";
+  var version = "1.3.6";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;
