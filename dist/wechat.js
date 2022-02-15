@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.6
+ * wechat.js v1.3.7
  * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
@@ -87,6 +87,9 @@
   function normalizeUrl$1(url, callback) {
       // 去除微信授权相关 state 和 code
       var urlObj = Url.parseUrl(url);
+      if (!urlObj) {
+          return url;
+      }
       if (urlObj.search) {
           var queryObj = Url.parseQuery(urlObj.search.slice(1));
           if (queryObj.state && queryObj.code) {
@@ -282,7 +285,7 @@
   /**
    * 版本
    */
-  var version = "1.3.6";
+  var version = "1.3.7";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;

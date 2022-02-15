@@ -36,6 +36,14 @@ beforeAll(() => {
 
 describe('Auth', () => {
   describe('normalizeUrl', () => {
+    test('url is invalid', () => {
+      let url = 'test-www.finstao.com/enterprise/83377475330?kk=test&a=1'
+      let result = Auth.normalizeUrl(url)
+
+      let expected = 'test-www.finstao.com/enterprise/83377475330?kk=test&a=1'
+      expect(result).toEqual(expected)
+    })
+
     test('no state and code', () => {
       let url = 'https://test-www.finstao.com/enterprise/83377475330#/pages/mall/product/order/index?count=1&sku_id=70559864181'
       let result = Auth.normalizeUrl(url)

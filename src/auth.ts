@@ -78,6 +78,11 @@ export function normalizeShareUrl(url: string, callback?: (urlObject: Record<str
 export function normalizeUrl(url: string, callback?: (urlObject: Record<string, string>) => void): string {
   // 去除微信授权相关 state 和 code
   const urlObj: any = Url.parseUrl(url)
+
+  if (!urlObj) {
+    return url
+  }
+
   if (urlObj.search) {
     const queryObj: any = Url.parseQuery(urlObj.search.slice(1))
     if (queryObj.state && queryObj.code) {
