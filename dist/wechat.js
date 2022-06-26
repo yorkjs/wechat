@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.7
+ * wechat.js v1.3.8
  * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
@@ -69,6 +69,7 @@
       location.href = "https://open.weixin.qq.com/connect/oauth2/authorize?" + queryStr + "#wechat_redirect";
   }
   function endAuth$1(biz) {
+      isAuthing = false;
       removeStorage(AUTH_PAGE_UNLOAD_TIMESTAMP);
   }
   function normalizeShareUrl$1(url, callback) {
@@ -285,7 +286,7 @@
   /**
    * 版本
    */
-  var version = "1.3.7";
+  var version = "1.3.8";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;

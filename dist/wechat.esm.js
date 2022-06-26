@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.7
+ * wechat.js v1.3.8
  * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
@@ -65,6 +65,7 @@ function auth(state, url, scope, appId, componentAppId) {
     location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?${queryStr}#wechat_redirect`;
 }
 function endAuth$1(biz) {
+    isAuthing = false;
     removeStorage(AUTH_PAGE_UNLOAD_TIMESTAMP);
 }
 function normalizeShareUrl$1(url, callback) {
@@ -277,7 +278,7 @@ const normalizeShareUrl = normalizeShareUrl$1;
 /**
  * 版本
  */
-const version = "1.3.7";
+const version = "1.3.8";
 
 export { endAuth, getAuthQuery, init, normalizeShareUrl, normalizeUrl, pay, share, startAuth, startSilentAuth, version };
 //# sourceMappingURL=wechat.esm.js.map

@@ -57,6 +57,7 @@ function auth(state: string, url: string, scope: string, appId: string, componen
 }
 
 export function endAuth(biz: string) {
+  isAuthing = false
   removeStorage(AUTH_PAGE_UNLOAD_TIMESTAMP)
 }
 
