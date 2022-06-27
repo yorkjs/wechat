@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.8
+ * wechat.js v1.3.9
  * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
@@ -44,8 +44,14 @@
   // 用作微信授权后，重定向回来判断时间是否过期
   if (isIos) {
       // iOS 的 unload 不起作用，改为监听 pagehide
-      window.addEventListener('pagehide', function (_) {
-          setAuthPageUnloadTimestamp();
+      // 区分 frozen 状态还是 terminated 状态
+      // https://developer.chrome.com/blog/page-lifecycle-api/#observing-state-changes
+      window.addEventListener('pagehide', function (event) {
+          if (!event.persisted) {
+              // If the event's persisted property is not `true` the page is
+              // about to be unloaded.
+              setAuthPageUnloadTimestamp();
+          }
       });
   }
   else {
@@ -286,7 +292,7 @@
   /**
    * 版本
    */
-  var version = "1.3.8";
+  var version = "1.3.9";
 
   exports.endAuth = endAuth;
   exports.getAuthQuery = getAuthQuery;

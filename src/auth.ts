@@ -27,8 +27,14 @@ function setAuthPageUnloadTimestamp() {
 // 用作微信授权后，重定向回来判断时间是否过期
 if (isIos) {
   // iOS 的 unload 不起作用，改为监听 pagehide
-  window.addEventListener('pagehide', function (_) {
-    setAuthPageUnloadTimestamp()
+  // 区分 frozen 状态还是 terminated 状态
+  // https://developer.chrome.com/blog/page-lifecycle-api/#observing-state-changes
+  window.addEventListener('pagehide', function (event) {
+    if (!event.persisted) {
+      // If the event's persisted property is not `true` the page is
+      // about to be unloaded.
+      setAuthPageUnloadTimestamp()
+    }
   })
 }
 else {
