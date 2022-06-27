@@ -33,4 +33,5 @@ export type QueryCheckRule = {
 export interface Config {
   storage: Storage,
   getTimestamp: () => number,
+  onPageLeave: (callback: () => void) => void
 }

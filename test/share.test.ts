@@ -27,6 +27,9 @@ const globalConfig = {
   getTimestamp: () => {
     return Date.now()
   },
+  onPageLeave: () => {
+
+  },
 } as Config
 
 beforeAll(() => {

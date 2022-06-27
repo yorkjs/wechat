@@ -1,5 +1,5 @@
 /**
- * wechat.js v1.3.9
+ * wechat.js v2.0.0
  * (c) 2021-2022 shushu2013
  * Released under the MIT License.
  */
@@ -12,6 +12,9 @@ const AUTH_PAGE_UNLOAD_TIMESTAMP = 'auth_page_unload_timestamp';
 let globalConfig;
 function init$1(config) {
     globalConfig = config;
+    // 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
+    // 用作微信授权后，重定向回来判断时间是否过期
+    config.onPageLeave(setAuthPageUnloadTimestamp);
 }
 function getGlobalConfig() {
     return globalConfig;
@@ -27,7 +30,7 @@ function removeStorage(key) {
 }
 
 const userAgent = navigator.userAgent;
-const isIos = /iphone|ipad/i.test(userAgent);
+/iphone|ipad/i.test(userAgent);
 const isAndroid = /android/i.test(userAgent);
 
 let isAuthing = false;
@@ -35,25 +38,6 @@ function setAuthPageUnloadTimestamp() {
     if (isAuthing) {
         setStorage(AUTH_PAGE_UNLOAD_TIMESTAMP, getGlobalConfig().getTimestamp());
     }
-}
-// 记录发起授权时，页面离开时的时间戳（微信授权，可能会弹出授权提示框）
-// 用作微信授权后，重定向回来判断时间是否过期
-if (isIos) {
-    // iOS 的 unload 不起作用，改为监听 pagehide
-    // 区分 frozen 状态还是 terminated 状态
-    // https://developer.chrome.com/blog/page-lifecycle-api/#observing-state-changes
-    window.addEventListener('pagehide', function (event) {
-        if (!event.persisted) {
-            // If the event's persisted property is not `true` the page is
-            // about to be unloaded.
-            setAuthPageUnloadTimestamp();
-        }
-    });
-}
-else {
-    window.addEventListener('unload', function (_) {
-        setAuthPageUnloadTimestamp();
-    });
 }
 // https://developers.weixin.qq.com/doc/oplatform/Third-party_Platforms/2.0/api/Before_Develop/Official_Accounts/official_account_website_authorization.html
 // 应用授权作用域
@@ -284,7 +268,7 @@ const normalizeShareUrl = normalizeShareUrl$1;
 /**
  * 版本
  */
-const version = "1.3.9";
+const version = "2.0.0";
 
 export { endAuth, getAuthQuery, init, normalizeShareUrl, normalizeUrl, pay, share, startAuth, startSilentAuth, version };
 //# sourceMappingURL=wechat.esm.js.map

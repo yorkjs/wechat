@@ -15,4 +15,4 @@ export declare const normalizeShareUrl: typeof Auth.normalizeShareUrl;
 /**
  * 版本
  */
-export declare const version = "1.3.9";
+export declare const version = "2.0.0";

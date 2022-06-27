@@ -22,7 +22,10 @@ const globalConfig = {
   getTimestamp: () => {
     return Date.now()
   },
-  storage: storageMock
+  storage: storageMock,
+  onPageLeave: () => {
+
+  },
 } as Config
 
 beforeAll(() => {
